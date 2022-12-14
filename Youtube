@@ -1,0 +1,50 @@
+// ==UserScript==
+// @name        youtube.com Fixer
+// @namespace   Violentmonkey Scripts
+// @match       https://www.youtube.com/*
+// @grant       GM_addStyle
+// @version     0.01
+// @author      Tristan
+// @description this kills shorts and "breaking news" as well as a few of the other side bar things i deem to be crap
+// @require     https://gist.github.com/raw/2625891/waitForKeyElements.js
+// @require     http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js
+// ==/UserScript==
+
+crap = ['Shorts', 'Breaking news']
+
+function hideme(victim) {
+    victim.style.display="none";
+
+}
+
+//simple CSS
+GM_addStyle(`
+    #content, #sections {
+        background-color: black;
+    }
+    #chips-wrapper, #scroll-container, .ytd-display-ad-renderer, yt-mealbar-promo-renderer[has-full-height-image] {
+        display: none;
+    }
+`);
+
+// more advanced decrapifier
+waitForKeyElements("#endpoint", function() {
+    // Shorts sidebar
+    hideme(endpoint)
+    // copyright notice at the bottom
+    hideme(footer)
+    sidebar = document.getElementsByTagName("ytd-guide-section-renderer")
+    //Explore
+    hideme(sidebar[2])
+    //more from youtube
+    hideme(sidebar[3])
+})
+
+waitForKeyElements("#contents" && ".ytd-rich-section-renderer", function() {
+    search = contents.getElementsByClassName("style-scope ytd-rich-section-renderer")
+    for (let i = 0; i < search.length; i++) {
+            if (crap.includes(search[i].getElementsByTagName('span')[0].innerHTML)) {
+                search[i].style.display="none"
+            }
+        }
+})
